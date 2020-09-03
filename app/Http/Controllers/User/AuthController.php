@@ -37,16 +37,16 @@ class AuthController extends Controller
         'country_id' => Country::inRandomOrder()->first()->getKey(),
         'budget' => Controller::INITIAL_BUDGET,
       ]);
-      $user->team()->associate($team);
+      $user->team()->associate($team)->save();
       self::generatePlayers($team);
       $team->updateValue();
     }
-    return response()->json(['message' => 'Email has been verified'], 200);
+    return response()->json(['message' => 'Email has been successfully verified'], 200);
   }
   public static function generatePlayers($team)
   {
     foreach (Controller::PLAYER_LIST as $role => $count) {
-      while($count){
+      while ($count) {
         $player = Player::generate($role);
         $player->team()->associate($team)->save();
         $count--;
@@ -62,5 +62,19 @@ class AuthController extends Controller
       $user->sendEmailVerificationNotification();
     }
     return response()->json(['message' => 'Verification has been sent'], 200);
+  }
+  public function login(Request $request){
+    $request->validate([
+      'email' => 'required|email',
+      'password' => 'required'
+    ]);
+    $token = auth()->attempt(['email' => $request->email, 'password' => $request->password]);
+    if($token == false || !auth()->user()->hasVerifiedEmail()){
+      return response()->json(['message' => 'Wrong credentials'], 400);
+    }
+    return response()->json([
+      'message' => 'Successfully logged in',
+      'token' => $token,
+    ]);
   }
 }

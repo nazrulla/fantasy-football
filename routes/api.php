@@ -18,4 +18,6 @@ Route::prefix('user')->group(function (){
   Route::post('register', 'User\AuthController@register');
   Route::get('verify/{id}', 'User\AuthController@verify')->name('verification.verify');
   Route::post('resend', 'User\AuthController@resend')->name('verification.resend');
+  Route::post('login', 'User\AuthController@login');
+  Route::get('main', 'User\ViewController@main')->middleware('auth');
 });
