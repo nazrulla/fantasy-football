@@ -19,5 +19,9 @@ Route::prefix('user')->group(function (){
   Route::get('verify/{id}', 'User\AuthController@verify')->name('verification.verify');
   Route::post('resend', 'User\AuthController@resend')->name('verification.resend');
   Route::post('login', 'User\AuthController@login');
-  Route::get('main', 'User\ViewController@main')->middleware('auth');
+  Route::prefix('main')->middleware('auth')->group(function (){
+    Route::get('/', 'User\MainController@main');
+    Route::post('updatePlayer/{player}', 'User\MainController@updatePlayer');
+    Route::post('updateTeam/{team}', 'User\MainController@updateTeam');
+  });
 });

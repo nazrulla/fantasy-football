@@ -13,7 +13,7 @@ class TeamResource extends JsonResource
       'country' => $this->country->name,
       'team_value' => $this->value,
       'budget' => $this->budget,
-      'players' => PlayerResource::collection($this->players),
+      'players' => PlayerResource::collection($this->whenLoaded('players')),
     ];
   }
 }
