@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,5 +24,7 @@ Route::prefix('user')->group(function (){
     Route::get('/', 'User\MainController@main');
     Route::post('updatePlayer/{player}', 'User\MainController@updatePlayer');
     Route::post('updateTeam/{team}', 'User\MainController@updateTeam');
+    Route::post('transfer/{player}', 'User\MainController@transfer');
+    Route::post('buy/{player}', 'User\MainController@buy');
   });
 });
