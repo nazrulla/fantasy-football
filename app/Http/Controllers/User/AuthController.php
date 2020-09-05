@@ -63,13 +63,14 @@ class AuthController extends Controller
     }
     return response()->json(['message' => 'Verification has been sent'], 200);
   }
-  public function login(Request $request){
+  public function login(Request $request)
+  {
     $request->validate([
       'email' => 'required|email',
       'password' => 'required'
     ]);
     $token = auth()->attempt(['email' => $request->email, 'password' => $request->password]);
-    if($token == false || !auth()->user()->hasVerifiedEmail()){
+    if ($token == false || !auth()->user()->hasVerifiedEmail()) {
       return response()->json(['message' => 'Wrong credentials'], 400);
     }
     return response()->json([

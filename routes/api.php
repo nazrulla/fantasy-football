@@ -29,3 +29,10 @@ Route::prefix('user')->group(function (){
     Route::post('buy/{player}', 'User\MainController@buy');
   });
 });
+
+Route::prefix('admin')->group(function (){
+  Route::post('login', 'Admin\MainController@login');
+  Route::prefix('user')->middleware('auth:admin')->group(function (){
+    Route::post('create')
+  })
+});
