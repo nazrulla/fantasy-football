@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\PlayerResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\TeamResource;
+use App\Http\Resources\TransferResource;
 use App\Models\Player;
 use App\Models\Team;
 use App\Models\Country;
 use App\Models\Transfer;
 use Faker;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 class MainController extends Controller
@@ -82,7 +84,7 @@ class MainController extends Controller
       'player_id' => $player->id,
       'price' => $request->price
     ]);
-    return $transfer;
+    return new TransferResource($transfer->fresh());
   }
   public function buy(Request $request, Player $player){
     $faker = Faker\Factory::create();
@@ -117,6 +119,36 @@ class MainController extends Controller
     $selling_team->updateValue();
     //Delete transfer record
     $transfer->delete();
-    return $user->team;
+    return new PlayerResource($player->fresh());
+  }
+  public function transfers(Request $request){
+    $v = Validator::make($request->all(), [
+      'min_value' => 'integer|min:0',
+      'max_value' => 'integer|min:0'
+    ])->sometimes('max_value', 'gte:min_value', function($input){
+      return $input->min_value != null;
+    })->validate();
+    $transfers = Transfer::join('players', 'players.id', 'transfers.player_id')
+    ->join('countries', 'players.country_id', 'countries.id')
+    ->join('teams', 'players.team_id', 'teams.id');
+    if($request->has('country')){
+      $transfers =$transfers->where('countries.name', 'like', '%'.$request->country.'%');
+    }
+    if($request->has('team')){
+      $transfers =$transfers->where('teams.name', 'like', '%'.$request->team.'%');
+    }
+    if($request->has('first_name')){
+      $transfers =$transfers->where('players.name', 'like', '%'.$request->first_name.'%');
+    }
+    if($request->has('last_name')){
+      $transfers =$transfers->where('players.lname', 'like', '%'.$request->last_name.'%');
+    }
+    if($request->has('min_value')){
+      $transfers =$transfers->where('players.value', '>=',$request->min_value);
+    }
+    if($request->has('max_value')){
+      $transfers =$transfers->where('players.value', '<=',$request->max_value);
+    }
+    return TransferResource::collection($transfers->get()->load('player.country', 'player.team'));
   }
 }

@@ -14,6 +14,9 @@ class PlayerResource extends JsonResource{
       'age' => $this->age,
       'value' => $this->value,
       'role' => $this->role->name,
+      'team' => $this->whenLoaded('team', function(){
+        return $this->team->name;
+      })
     ];
   }
 }

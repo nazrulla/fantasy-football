@@ -22,6 +22,7 @@ Route::prefix('user')->group(function (){
   Route::post('login', 'User\AuthController@login');
   Route::prefix('main')->middleware('auth')->group(function (){
     Route::get('/', 'User\MainController@main');
+    Route::get('transfers', 'User\MainController@transfers');
     Route::post('updatePlayer/{player}', 'User\MainController@updatePlayer');
     Route::post('updateTeam/{team}', 'User\MainController@updateTeam');
     Route::post('transfer/{player}', 'User\MainController@transfer');
