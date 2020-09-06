@@ -6,11 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Team extends Model
 {
-    protected $guarded = [];
+    protected $guarded = ['value'];
 
     public function country()
     {
         return $this->belongsTo(Country::class);
+    }
+    public function users()
+    {
+        return $this->hasMany(User::class);
     }
     public function updateValue()
     {

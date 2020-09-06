@@ -20,6 +20,7 @@ Route::prefix('user')->group(function (){
   Route::get('verify/{id}', 'User\AuthController@verify')->name('verification.verify');
   Route::post('resend', 'User\AuthController@resend')->name('verification.resend');
   Route::post('login', 'User\AuthController@login');
+  
   Route::prefix('main')->middleware('auth')->group(function (){
     Route::get('/', 'User\MainController@main');
     Route::get('transfers', 'User\MainController@transfers');
@@ -32,7 +33,11 @@ Route::prefix('user')->group(function (){
 
 Route::prefix('admin')->group(function (){
   Route::post('login', 'Admin\MainController@login');
-  Route::prefix('user')->middleware('auth:admin')->group(function (){
-    Route::post('create')
-  })
+  Route::apiResources([
+    'users' => 'Admin\UserController',
+    'players' => 'Admin\PlayerController',
+    'teams' => 'Admin\TeamController',
+    'transfers' => 'Admin\TransferController', 
+  ],
+  ['middleware' => 'auth:admin']);
 });

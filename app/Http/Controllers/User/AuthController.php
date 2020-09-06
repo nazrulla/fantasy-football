@@ -16,10 +16,8 @@ class AuthController extends Controller
     $request->validate([
       'username' => 'required',
       'password' => 'required|confirmed|min:6',
-      'email' => 'required|email',
+      'email' => 'required|email|unique:users,email',
     ]);
-    if (User::where('email', $request->email)->exists())
-      return response()->json(['message' => 'User with this email already exists'], 400);
     $user = User::create($request->except('password_confirmation'))->sendEmailVerificationNotification();
     return response()->json(['message' => __('auth.email_success')], 200);
   }
