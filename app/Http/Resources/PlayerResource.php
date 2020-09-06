@@ -10,10 +10,14 @@ class PlayerResource extends JsonResource{
     return [
       'first_name' => $this->name,
       'last_name' => $this->lname,
-      'country' => $this->country->name,
+      'country' => $this->whenLoaded('country', function(){
+        return $this->country->name;
+      }),
       'age' => $this->age,
       'value' => $this->value,
-      'role' => $this->role->name,
+      'role' => $this->whenLoaded('role', function(){
+        return $this->role->name;
+      }),
       'team' => $this->whenLoaded('team', function(){
         return $this->team->name;
       })

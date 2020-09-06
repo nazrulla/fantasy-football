@@ -19,7 +19,8 @@ class Team extends Model
     public function updateValue()
     {
         $value = $this->players()->sum('value');
-        $this->update(['value' => $value]);
+        $this->forceFill(['value' => $value]);
+        $this->save();
     }
     public function players()
     {
