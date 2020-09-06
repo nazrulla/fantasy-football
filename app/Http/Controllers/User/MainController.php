@@ -107,7 +107,6 @@ class MainController extends Controller
     }
     $selling_team = $player->team;
     //Player update
-    $player = $transfer->player;
     $player->team()->associate($user->team_id);
     $player->value *= 1 + $faker->numberBetween($min=10, $max=100)/100; 
     $player->save();
@@ -115,8 +114,10 @@ class MainController extends Controller
     $user->team->budget -= $transfer->price;
     $user->team->updateValue();
     //Selling Team update
-    $selling_team->budget += $transfer->price;
-    $selling_team->updateValue();
+    if($selling_team != null){
+      $selling_team->budget += $transfer->price;
+      $selling_team->updateValue();
+    }
     //Delete transfer record
     $transfer->delete();
     return new PlayerResource($player->fresh());

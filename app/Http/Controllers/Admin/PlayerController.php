@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Player;
 use App\Models\Team;
+use App\Models\Transfer;
 use App\Http\Resources\PlayerResource;
 use Illuminate\Http\Request;
 
@@ -90,6 +91,7 @@ class PlayerController extends Controller
     public function destroy(Player $player)
     {
         $player->delete();
+        Transfer::where('player_id', $player->id)->delete();
         $player->team->updateValue();
         return $player->id;
     }
