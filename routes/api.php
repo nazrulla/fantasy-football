@@ -17,7 +17,7 @@ Route::prefix('user')->group(function (){
   Route::post('register', 'User\AuthController@register');
   Route::get('verify/{id}', 'User\AuthController@verify')->name('verification.verify');
   Route::post('resend', 'User\AuthController@resend')->name('verification.resend');
-  Route::post('login', 'User\AuthController@login');
+  Route::post('login', 'User\AuthController@login')->middleware('throttle:10,1');
   
   Route::prefix('main')->middleware('auth')->group(function (){
     Route::get('/', 'User\MainController@main');
@@ -30,7 +30,7 @@ Route::prefix('user')->group(function (){
 });
 
 Route::prefix('admin')->group(function (){
-  Route::post('login', 'Admin\MainController@login');
+  Route::post('login', 'Admin\MainController@login')->middleware('throttle:10,1');
   Route::apiResources([
     'users' => 'Admin\UserController',
     'players' => 'Admin\PlayerController',

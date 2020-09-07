@@ -13,7 +13,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app
+	    ->when(\Tymon\JWTAuth\Providers\Storage\Illuminate::class)
+	    ->needs(\Illuminate\Contracts\Cache\Repository::class)
+	    ->give(function () {
+		    return cache()->store('jwt');
+	    });
     }
 
     /**
