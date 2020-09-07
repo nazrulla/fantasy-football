@@ -53,6 +53,11 @@ return [
             'path' => storage_path('framework/cache/data'),
         ],
 
+        'jwt' => [
+            'driver' => 'file', 
+            'path' => storage_path('framework/cache/jwt')
+        ],
+        
         'memcached' => [
             'driver' => 'memcached',
             'persistent_id' => env('MEMCACHED_PERSISTENT_ID'),
