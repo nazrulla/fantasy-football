@@ -22,15 +22,18 @@ class MainController extends Controller
     $user = auth()->user();
     return new UserResource($user->load('team.players.role', 'team.country', 'team.players.country'));
   }
-  public function updateTeam(Request $request, Team $team)
+  public function updateTeam(Request $request)
   {
     $request->validate([
       'name' => 'max:100',
       'country' => 'exists:countries,name'
     ]);
     $user = auth()->user();
-    if ($user->team_id != $team->id) {
-      return response()->json(['message' => 'Team not found'], 400);
+    $team = $user->team;
+    if($team == null){
+      return response()->json([
+        'message' => 'You don\'t have a team'
+      ], 400);
     }
     if ($request->has('name')) {
       $team->name = $request->name;
