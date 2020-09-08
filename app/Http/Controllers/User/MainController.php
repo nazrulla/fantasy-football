@@ -64,6 +64,22 @@ class MainController extends Controller
     $player->save();
     return new PlayerResource($player->load('country', 'role'));
   }
+  public function updateTransfer(Request $request, Transfer $transfer)
+  {
+    $request->validate([
+      'price' => 'required|integer|min:0'
+    ]);
+    $user = auth()->user();
+    if ($user->team_id != $transfer->player->team_id) {
+      return response()->json([
+        'message' => 'Player not found'
+      ], 400);
+    }
+    $transfer->update([
+      'price' => $request->price
+    ]);
+    return new TransferResource($transfer->fresh());
+  }
   public function transfer(Request $request, Player $player)
   {
     $request->validate([
@@ -86,21 +102,33 @@ class MainController extends Controller
     ]);
     return new TransferResource($transfer->fresh());
   }
-  public function buy(Request $request, Player $player){
+  public function removeTransfer(Transfer $transfer)
+  {
+    $user = auth()->user();
+    if ($user->team_id != $transfer->player->team_id) {
+      return response()->json([
+        'message' => 'Player not found'
+      ], 400);
+    }
+    $transfer->delete();
+    return $transfer->getKey();
+  }
+  public function buy(Request $request, Player $player)
+  {
     $faker = Faker\Factory::create();
-    if(!Transfer::where('player_id', $player->id)->exists()){
+    if (!Transfer::where('player_id', $player->id)->exists()) {
       return response()->json([
         'message' => 'The player is not in the transfer list'
       ], 400);
     }
     $user = auth()->user();
-    if($user->team_id == $player->team_id){
+    if ($user->team_id == $player->team_id) {
       return response()->json([
         'message' => 'You cannot buy your own player'
       ], 400);
     }
     $transfer = Transfer::where('player_id', $player->id)->first();
-    if($user->team->budget < $transfer->price){
+    if ($user->team->budget < $transfer->price) {
       return response()->json([
         'message' => 'You do not have enough funds to buy this player'
       ], 400);
@@ -108,13 +136,13 @@ class MainController extends Controller
     $selling_team = $player->team;
     //Player update
     $player->team()->associate($user->team_id);
-    $player->value *= 1 + $faker->numberBetween($min=10, $max=100)/100; 
+    $player->value *= 1 + $faker->numberBetween($min = 10, $max = 100) / 100;
     $player->save();
     //Buying Team update
     $user->team->budget -= $transfer->price;
     $user->team->updateValue();
     //Selling Team update
-    if($selling_team != null){
+    if ($selling_team != null) {
       $selling_team->budget += $transfer->price;
       $selling_team->updateValue();
     }
@@ -122,33 +150,34 @@ class MainController extends Controller
     $transfer->delete();
     return new PlayerResource($player->fresh());
   }
-  public function transfers(Request $request){
+  public function transfers(Request $request)
+  {
     $v = Validator::make($request->all(), [
       'min_value' => 'integer|min:0',
       'max_value' => 'integer|min:0'
-    ])->sometimes('max_value', 'gte:min_value', function($input){
+    ])->sometimes('max_value', 'gte:min_value', function ($input) {
       return $input->min_value != null;
     })->validate();
     $transfers = Transfer::join('players', 'players.id', 'transfers.player_id')
-    ->join('countries', 'players.country_id', 'countries.id')
-    ->join('teams', 'players.team_id', 'teams.id');
-    if($request->has('country')){
-      $transfers =$transfers->where('countries.name', 'like', '%'.$request->country.'%');
+      ->join('countries', 'players.country_id', 'countries.id')
+      ->join('teams', 'players.team_id', 'teams.id');
+    if ($request->has('country')) {
+      $transfers = $transfers->where('countries.name', 'like', '%' . $request->country . '%');
     }
-    if($request->has('team')){
-      $transfers =$transfers->where('teams.name', 'like', '%'.$request->team.'%');
+    if ($request->has('team')) {
+      $transfers = $transfers->where('teams.name', 'like', '%' . $request->team . '%');
     }
-    if($request->has('first_name')){
-      $transfers =$transfers->where('players.name', 'like', '%'.$request->first_name.'%');
+    if ($request->has('first_name')) {
+      $transfers = $transfers->where('players.name', 'like', '%' . $request->first_name . '%');
     }
-    if($request->has('last_name')){
-      $transfers =$transfers->where('players.lname', 'like', '%'.$request->last_name.'%');
+    if ($request->has('last_name')) {
+      $transfers = $transfers->where('players.lname', 'like', '%' . $request->last_name . '%');
     }
-    if($request->has('min_value')){
-      $transfers =$transfers->where('players.value', '>=',$request->min_value);
+    if ($request->has('min_value')) {
+      $transfers = $transfers->where('players.value', '>=', $request->min_value);
     }
-    if($request->has('max_value')){
-      $transfers =$transfers->where('players.value', '<=',$request->max_value);
+    if ($request->has('max_value')) {
+      $transfers = $transfers->where('players.value', '<=', $request->max_value);
     }
     return TransferResource::collection($transfers->get()->load('player.country', 'player.team'));
   }

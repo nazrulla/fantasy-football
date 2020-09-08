@@ -25,6 +25,8 @@ Route::prefix('user')->group(function (){
     Route::post('updatePlayer/{player}', 'User\MainController@updatePlayer');
     Route::post('updateTeam/{team}', 'User\MainController@updateTeam');
     Route::post('transfer/{player}', 'User\MainController@transfer');
+    Route::post('updateTransfer/{transfer}', 'User\MainController@updateTransfer');
+    Route::delete('transfer/{transfer}', 'User\MainController@removeTransfer');
     Route::post('buy/{player}', 'User\MainController@buy');
   });
 });
