@@ -33,7 +33,7 @@ class TransferController extends Controller
             'price' => 'required|integer|min:0'
         ]);
         $transfer = Transfer::create($request->all());
-        return new TransferResource($transfer);
+        return new TransferResource($transfer->fresh());
     }
 
     /**

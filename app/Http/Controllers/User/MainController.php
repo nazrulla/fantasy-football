@@ -163,7 +163,7 @@ class MainController extends Controller
     })->validate();
     $transfers = Transfer::join('players', 'players.id', 'transfers.player_id')
       ->join('countries', 'players.country_id', 'countries.id')
-      ->join('teams', 'players.team_id', 'teams.id');
+      ->leftJoin('teams', 'players.team_id', 'teams.id');
     if ($request->has('country')) {
       $transfers = $transfers->where('countries.name', 'like', '%' . $request->country . '%');
     }
